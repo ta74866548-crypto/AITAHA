@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المساعد الدراسي الذكي - منصة التعلم التفاعلية</title>
+    <!-- خط القاهرة Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+    <!-- مكتبة Tailwind CSS للتنسيقات العصرية -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- مكتبة أيقونات FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            500: '#0284c7',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Cairo', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+        .chat-bubble-ai {
+            background-color: #f1f5f9;
+            border-bottom-right-radius: 4px;
+        }
+        .chat-bubble-user {
+            background-color: #0284c7;
+            color: white;
+            border-bottom-left-radius: 4px;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col md:flex-row">
+
+    <!-- زر القائمة الجانبية للشاشات الصغيرة -->
+    <div class="md:hidden bg-slate-900 text-white p-4 flex justify-between items-center sticky top-0 z-50 shadow-md">
+        <div class="flex items-center gap-2">
+            <i class="fa-solid fa-brain text-sky-400 text-2xl"></i>
+            <span class="font-bold text-lg">المساعد الذكي</span>
+        </div>
+        <button id="mobile-menu-btn" class="text-2xl focus:outline-none">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+    </div>
+
+    <!-- القائمة الجانبية (Sidebar) -->
+    <aside id="sidebar" class="fixed md:static inset-y-0 right-0 z-40 w-64 bg-slate-900 text-slate-200 flex flex-col justify-between p-4 transition-transform duration-300 transform translate-x-full md:translate-x-0 shadow-2xl">
+        <div>
+            <!-- شعار المنصة -->
+            <div class="flex items-center gap-3 px-3 py-4 mb-6 border-b border-slate-800">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-black text-xl shadow-lg">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <div>
+                    <h2 class="font-extrabold text-lg text-white leading-tight">المساعد الذكي</h2>
+                    <span class="text-xs text-sky-400 font-medium">نظام التعلم بالذكاء الاصطناعي</span>
+                </div>
+            </div>
+
+            <!-- روابط الملاحة -->
+            <nav class="space-y-1">
+                <button onclick="navTo('view-home')" id="nav-view-home" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-house text-lg w-6"></i>
+                    <span>الرئيسية</span>
+                </button>
+
+                <button onclick="navTo('view-upload')" id="nav-view-upload" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-cloud-arrow-up text-lg w-6"></i>
+                    <span>رفع درس جديد</span>
+                </button>
+
+                <button onclick="navTo('view-summary')" id="nav-view-summary" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-file-contract text-lg w-6"></i>
+                    <span>ملخص الدرس</span>
+                </button>
+
+                <button onclick="navTo('view-questions')" id="nav-view-questions" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-clipboard-question text-lg w-6"></i>
+                    <span>الأسئلة والاختبارات</span>
+                </button>
+
+                <button onclick="navTo('view-chat')" id="nav-view-chat" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-comments text-lg w-6"></i>
+                    <span>شات الدرس الذكي</span>
+                </button>
+
+                <button onclick="navTo('view-lessons')" id="nav-view-lessons" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl font-semibold transition-all text-slate-400 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-book-bookmark text-lg w-6"></i>
+                    <span>الدروس المحفوظة</span>
+                </button>
+            </nav>
+        </div>
+
+        <!-- معلومات المستخدم في الأسفل -->
+        <div class="pt-4 border-t border-slate-800 flex items-center gap-3 px-2">
+            <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center text-sky-400 font-bold">
+                <i class="fa-solid fa-user"></i>
+            </div>
+            <div class="flex-1 overflow-hidden">
+                <h4 class="text-sm font-bold text-white truncate">طالب مجتهد</h4>
+                <p class="text-xs text-slate-500 truncate">تلميذ الفئة الذهبية</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- منطقة المحتوى الرئيسية -->
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-6xl mx-auto w-full">
+
+        <!-- ==================== View 1: الرئيسية (Home) ==================== -->
+        <section id="view-home" class="view-page space-y-6">
+            <div class="bg-gradient-to-r from-sky-600 to-indigo-700 rounded-3xl p-6 md:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-bold uppercase tracking-wider mb-3 inline-block">مرحباً بك مجدداً 👋</span>
+                    <h1 class="text-2xl md:text-4xl font-extrabold mb-3 leading-tight">جاهز لتحويل دراستك إلى تجربة تفاعلية سهلة؟</h1>
+                    <p class="text-sky-100 text-sm md:text-base mb-6 leading-relaxed">قم برفع ملخصاتك، كتبك، أو صور دروسك ودع الذكاء الاصطناعي يلخصها لك ويولد اختبارات وشات تفاعلي للإجابة عن جميع استفساراتك.</p>
+                    <button onclick="navTo('view-upload')" class="bg-white text-sky-700 hover:bg-sky-50 font-bold px-6 py-3 rounded-xl shadow-lg transition-transform active:scale-95 flex items-center gap-2">
+                        <i class="fa-solid fa-plus-circle"></i>
+                        <span>ابدأ برفع درس جديد</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- إحصائيات سريعة -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="glass-panel p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-file-check"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-extrabold text-slate-800" id="stat-lessons-count">0</div>
+                        <div class="text-xs text-slate-500 font-semibold">دروس تم تلخيصها</div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-extrabold text-slate-800" id="stat-quiz-count">0</div>
+                        <div class="text-xs text-slate-500 font-semibold">أسئلة تم إنشاؤها</div>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-xl font-bold">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-extrabold text-slate-800">سريع جداً</div>
+                        <div class="text-xs text-slate-500 font-semibold">معالجة فورية بنموذج Gemini</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- اختصارات سريعة -->
+            <h3 class="text-lg font-bold text-slate-800 mt-6">ماذا تريد أن تفعل الآن؟</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div onclick="navTo('view-upload')" class="cursor-pointer glass-panel p-6 rounded-2xl border border-slate-200 hover:border-sky-500 hover:shadow-md transition-all group">
+                    <i class="fa-solid fa-file-arrow-up text-3xl text-sky-600 mb-3 group-hover:scale-110 transition-transform block"></i>
+                    <h4 class="font-bold text-slate-800 mb-1">رفع مستند أو صورة</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">استخراج النصوص من PDF أو الصور الملتقطة بالكاميرا.</p>
+                </div>
+                <div onclick="navTo('view-questions')" class="cursor-pointer glass-panel p-6 rounded-2xl border border-slate-200 hover:border-emerald-500 hover:shadow-md transition-all group">
+                    <i class="fa-solid fa-list-check text-3xl text-emerald-600 mb-3 group-hover:scale-110 transition-transform block"></i>
+                    <h4 class="font-bold text-slate-800 mb-1">اختبر نفسك</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">توليد كويز اختيارات متعددة لقياس مدى استيعابك.</p>
+                </div>
+                <div onclick="navTo('view-chat')" class="cursor-pointer glass-panel p-6 rounded-2xl border border-slate-200 hover:border-indigo-500 hover:shadow-md transition-all group">
+                    <i class="fa-solid fa-robot text-3xl text-indigo-600 mb-3 group-hover:scale-110 transition-transform block"></i>
+                    <h4 class="font-bold text-slate-800 mb-1">شات المعلم الذكي</h4>
+                    <p class="text-xs text-slate-500 leading-relaxed">اسأل أي سؤال غامض وسيجيبك المعلم فوراً.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== View 2: رفع الدرس (Upload) ==================== -->
+        <section id="view-upload" class="view-page hidden space-y-6">
+            <div class="border-b border-slate-200 pb-4">
+                <h1 class="text-2xl font-extrabold text-slate-800">رفع درس جديد 📤</h1>
+                <p class="text-xs md:text-sm text-slate-500">اختر مادة وقم بتقديم الملف أو لزق محتوى النص ليقوم الذكاء الاصطناعي بمعالجته.</p>
+            </div>
+
+            <div class="glass-panel p-6 rounded-3xl shadow-sm space-y-6 max-w-3xl mx-auto">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-2">عنوان الدرس</label>
+                        <input type="text" id="lesson-title-input" placeholder="مثال: النظرية النسبيّة المبسطة" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-2">المادة الدراسية</label>
+                        <select id="lesson-subject-select" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm bg-white">
+                            <option value="physics">الفيزياء ⚡</option>
+                            <option value="chemistry">الكيمياء 🧪</option>
+                            <option value="biology"> الأحياء 🧬</option>
+                            <option value="math">الرياضيات 📐</option>
+                            <option value="general">مادة عامة 📖</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- منطقة السحب والإفلات -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">رفع ملف (PDF، صورة، أو مستند نصي)</label>
+                    <div id="drop-zone" class="border-2 border-dashed border-sky-300 hover:border-sky-500 bg-sky-50/50 hover:bg-sky-50 rounded-2xl p-8 text-center cursor-pointer transition-all">
+                        <i class="fa-solid fa-file-pdf text-4xl text-sky-500 mb-3"></i>
+                        <p class="text-sm font-bold text-slate-700">اسحب وأفلت الملف هنا</p>
+                        <p class="text-xs text-slate-400 mt-1">يدعم PDF, PNG, JPG, TXT</p>
+                        <button type="button" onclick="document.getElementById('file-input').click()" class="mt-4 px-4 py-2 bg-white text-sky-600 border border-sky-200 rounded-lg text-xs font-bold shadow-sm hover:bg-sky-50">تصفح الملفات</button>
+                        <input type="file" id="file-input" accept=".pdf,.txt,image/*" class="hidden" onchange="handleFileSelect(event)">
+                    </div>
+                    <div id="file-info-badge" class="hidden mt-3 p-3 bg-slate-100 rounded-xl flex justify-between items-center text-xs">
+                        <span id="file-name-text" class="font-bold text-slate-700"></span>
+                        <button onclick="clearSelectedFile()" class="text-red-500 font-bold hover:underline">إزالة ❌</button>
+                    </div>
+                </div>
+
+                <div class="relative flex py-2 items-center">
+                    <div class="flex-grow border-t border-slate-200"></div>
+                    <span class="flex-shrink mx-4 text-xs font-bold text-slate-400">أو</span>
+                    <div class="flex-grow border-t border-slate-200"></div>
+                </div>
+
+                <!-- إدخال النص مباشرة -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">إدخال نص الدرس مباشرةً</label>
+                    <textarea id="lesson-text-input" rows="5" placeholder="قم بانسخ ولصق نص الدرس هنا إذا لم يكن لديك ملف..." class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm"></textarea>
+                </div>
+
+                <!-- شريط التقدم -->
+                <div id="upload-progress-container" class="hidden space-y-2">
+                    <div class="flex justify-between text-xs font-bold">
+                        <span id="upload-status-label" class="text-sky-600">جاري المعالجة...</span>
+                        <span id="upload-percent" class="text-slate-500">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                        <div id="upload-progress-bar" class="bg-sky-500 h-full w-0 transition-all duration-300"></div>
+                    </div>
+                </div>
+
+                <button id="process-btn" onclick="startProcessingLesson()" class="w-full py-4 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-extrabold rounded-xl shadow-lg transition-all active:scale-[0.99] flex justify-center items-center gap-2">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>بدء التحليل والتلخيص بالذكاء الاصطناعي</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- ==================== View 3: ملخص الدرس (Summary) ==================== -->
+        <section id="view-summary" class="view-page hidden space-y-6">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4">
+                <div>
+                    <span id="summary-subject-badge" class="bg-sky-100 text-sky-700 text-xs px-3 py-1 rounded-full font-bold">عام</span>
+                    <h1 id="summary-title" class="text-2xl font-extrabold text-slate-800 mt-1">عنوان الدرس</h1>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="navTo('view-questions')" class="px-4 py-2 bg-emerald-600 text-white text-xs font-bold rounded-xl shadow hover:bg-emerald-700 flex items-center gap-2">
+                        <i class="fa-solid fa-clipboard-question"></i>
+                        <span>انتقل للاختبار</span>
+                    </button>
+                    <button onclick="navTo('view-chat')" class="px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-xl shadow hover:bg-indigo-700 flex items-center gap-2">
+                        <i class="fa-solid fa-comments"></i>
+                        <span>شات عن الدرس</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- مشغل الملخص الصوتي -->
+            <div class="glass-panel p-4 rounded-2xl flex items-center justify-between border-r-4 border-r-sky-500">
+                <div class="flex items-center gap-3">
+                    <button id="tts-play-btn" onclick="toggleAudioScript()" class="w-10 h-10 rounded-full bg-sky-600 text-white flex items-center justify-center text-lg shadow hover:bg-sky-700">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <div>
+                        <h4 class="text-xs font-bold text-slate-800">استمع للملخص الصوتي الذكي</h4>
+                        <p class="text-[10px] text-slate-500">قراءة صوتية ملخصة للدرس بطريقة المساعد الصوتي</p>
+                    </div>
+                </div>
+                <span id="tts-status" class="text-xs text-slate-400 font-bold">متوقف</span>
+            </div>
+
+            <!-- النظرة العامة -->
+            <div class="glass-panel p-6 rounded-3xl space-y-3">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-align-right text-sky-600"></i>
+                    <span>النظرة العامة والملخص الشامل</span>
+                </h3>
+                <p id="summary-overview" class="text-sm text-slate-600 leading-relaxed">لم يتم تحميل أي درس بعد. يرجى الانتقال إلى صفحة "رفع درس جديد" وتزويد الذكاء الاصطناعي بالمحتوى المطلوب.</p>
+            </div>
+
+            <!-- النقاط الرئيسية -->
+            <div class="glass-panel p-6 rounded-3xl space-y-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-list-check text-sky-600"></i>
+                    <span>أهم النقاط المفتاحية</span>
+                </h3>
+                <ul id="summary-keypoints" class="space-y-2 text-sm text-slate-700">
+                    <li class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
+                        <i class="fa-solid fa-check-circle text-sky-500 mt-1"></i>
+                        <span>سيظهر هنا تفنيد الأفكار الرئيسية بعد رفع الدرس.</span>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- ==================== View 4: الأسئلة (Questions) ==================== -->
+        <section id="view-questions" class="view-page hidden space-y-6">
+            <div class="flex justify-between items-center border-b border-slate-200 pb-4">
+                <div>
+                    <h1 class="text-2xl font-extrabold text-slate-800">اختبر معلوماتك ❓</h1>
+                    <p class="text-xs text-slate-500">أسئلة تفاعلية ذكية تم إنشاؤها خصيصاً لمراجعة هذا الدرس.</p>
+                </div>
+                <div class="text-left">
+                    <span class="text-xs text-slate-500 block">النتيجة</span>
+                    <span id="quiz-score" class="text-lg font-black text-sky-600">0 / 0</span>
+                </div>
+            </div>
+
+            <div id="quiz-container" class="space-y-6">
+                <!-- سيتم توليد كروت الأسئلة هنا ديناميكياً -->
+                <div class="glass-panel p-8 rounded-3xl text-center space-y-3">
+                    <i class="fa-solid fa-folder-open text-4xl text-slate-300"></i>
+                    <p class="text-sm font-bold text-slate-500">لا يوجد اختبار حالي. قم برفع درس أولاً لتوليد كويز تلقائي.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== View 5: الشات (Chat) ==================== -->
+        <section id="view-chat" class="view-page hidden flex flex-col h-[80vh]">
+            <div class="border-b border-slate-200 pb-3 mb-3 flex items-center justify-between">
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-800">شات الدرس الذكي 💬</h1>
+                    <p class="text-xs text-slate-500">اسأل الذكاء الاصطناعي عن أي جزء غير واضح من الدرس الحالي.</p>
+                </div>
+                <span class="w-3 h-3 bg-emerald-500 rounded-full animate-pulse" title="المعلم متصل"></span>
+            </div>
+
+            <!-- حاوية الرسائل -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 p-4 bg-slate-100/60 rounded-2xl mb-4 border border-slate-200">
+                <div class="flex gap-3 max-w-[85%]">
+                    <div class="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">AI</div>
+                    <div class="chat-bubble-ai p-4 rounded-2xl text-xs md:text-sm text-slate-700 shadow-sm leading-relaxed">
+                        أهلاً بك! أنا معلمك الذكي الخاص بهذا الدرس. كيف يمكنني مساعدتك في فهم أي نقطة غامضة اليوم؟
+                    </div>
+                </div>
+            </div>
+
+            <!-- نموذج إدخال الرسالة -->
+            <form onsubmit="sendChatMessage(event)" class="flex gap-2">
+                <input type="text" id="chat-input" placeholder="اكتب سؤالك هنا عن الدرس..." class="flex-1 px-4 py-3 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-sky-500 text-sm">
+                <button type="submit" class="px-6 py-3 bg-sky-600 text-white font-bold rounded-xl shadow hover:bg-sky-700 flex items-center gap-2">
+                    <span>إرسال</span>
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </form>
+        </section>
+
+        <!-- ==================== View 6: الدروس المحفوظة (Saved Lessons) ==================== -->
+        <section id="view-lessons" class="view-page hidden space-y-6">
+            <div class="border-b border-slate-200 pb-4">
+                <h1 class="text-2xl font-extrabold text-slate-800">الدروس المحفوظة 📚</h1>
+                <p class="text-xs text-slate-500">سجل الدروس التي قمت بمعالجتها سابقاً للاطلاع عليها في أي وقت.</p>
+            </div>
+
+            <div id="saved-lessons-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- دروس مضافة سابقاً -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- البرمجة التفاعلية بالجافاسكريبت الموحدة -->
+    <script>
+        // المتغيرات العامة للتطبيق
+        const API_URL = "http://localhost:5000/api";
+        let appData = {
+            currentLesson: null,
+            savedLessons: JSON.parse(localStorage.getItem('ai_lessons_history') || '[]'),
+            quizAnswers: {},
+            speechUtterance: null,
+            isPlayingAudio: false
+        };
+
+        // عند تحميل الصفحة
+        document.addEventListener("DOMContentLoaded", () => {
+            updateStats();
+            renderSavedLessons();
+            
+            // إضافة مستمع حدث زر فتح القائمة الجانبية للموبايل
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                sidebar.classList.toggle('translate-x-full');
+            });
+        });
+
+        // التنقل بين الصفحات/الواجهات
+        function navTo(viewId) {
+            // إخفاء جميع الشاشات
+            document.querySelectorAll('.view-page').forEach(page => page.classList.add('hidden'));
+            // إظهار الشاشة المطلوبة
+            const targetPage = document.getElementById(viewId);
+            if (targetPage) targetPage.classList.remove('hidden');
+
+            // تحديث حالة أزرار القائمة الجانبية
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            
+            const activeNavBtn = document.getElementById(`nav-${viewId}`);
+            if (activeNavBtn) {
+                activeNavBtn.classList.add('bg-slate-800', 'text-white');
+                activeNavBtn.classList.remove('text-slate-400');
+            }
+
+            // إغلاق قائمة الموبايل عند الاختيار
+            document.getElementById('sidebar').classList.add('translate-x-full');
+        }
+
+        // التعامل مع رفع وتحديد الملف
+        let selectedFile = null;
+        function handleFileSelect(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile = file;
+                document.getElementById('file-name-text').innerText = `الملف المحدد: ${file.name} (${(file.size / (1024*1024)).toFixed(2)} MB)`;
+                document.getElementById('file-info-badge').classList.remove('hidden');
+            }
+        }
+
+        function clearSelectedFile() {
+            selectedFile = null;
+            document.getElementById('file-input').value = '';
+            document.getElementById('file-info-badge').classList.add('hidden');
+        }
+
+        // بدء معالجة الدرس وتنسيق الطلبات
+        async function startProcessingLesson() {
+            const title = document.getElementById('lesson-title-input').value.trim() || 'درس جديد بدون عنوان';
+            const subject = document.getElementById('lesson-subject-select').value;
+            const textContent = document.getElementById('lesson-text-input').value.trim();
+
+            if (!selectedFile && !textContent) {
+                alert('يرجى كتابة نص الدرس أو رفع ملف أولاً!');
+                return;
+            }
+
+            const progressContainer = document.getElementById('upload-progress-container');
+            const progressBar = document.getElementById('upload-progress-bar');
+            const statusLabel = document.getElementById('upload-status-label');
+            const percentLabel = document.getElementById('upload-percent');
+
+            progressContainer.classList.remove('hidden');
+            progressBar.style.width = '20%';
+            percentLabel.innerText = '20%';
+            statusLabel.innerText = 'جاري استخراج وتجهيز النصوص...';
+
+            let extractedText = textContent;
+
+            try {
+                // إذا تم رفع ملف، نرسله لـ Backend لفك ضغطه وقراءته
+                if (selectedFile) {
+                    const formData = new FormData();
+                    formData.append('file', selectedFile);
+
+                    try {
+                        const uploadRes = await fetch(`${API_URL}/upload`, { method: 'POST', body: formData });
+                        const uploadData = await uploadRes.json();
+                        if (uploadData.success) {
+                            extractedText = uploadData.text;
+                        }
+                    } catch (err) {
+                        console.warn("Backend unreached, using local fallback demo simulation.");
+                        extractedText = `نص مستخرج من الملف (${selectedFile.name}): هذا الدرس يتناول المفاهيم الأساسية والتطبيقات العلمية مع أهم الشروط والتجارب الهامة.`;
+                    }
+                }
+
+                progressBar.style.width = '60%';
+                percentLabel.innerText = '60%';
+                statusLabel.innerText = 'جاري تحليل وتلخيص الدرس بـ Gemini API...';
+
+                // إرسال النص لتلخيصه
+                let summaryResult;
+                try {
+                    const sumRes = await fetch(`${API_URL}/summarize`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: extractedText })
+                    });
+                    const sumData = await sumRes.json();
+                    if (sumData.success) summaryResult = sumData.data;
+                } catch (e) {
+                    summaryResult = {
+                        title: title,
+                        overview: extractedText.slice(0, 300) + '...',
+                        key_points: ['المفهوم والقانون الرئيسي للدرس.', 'الشروط والنتائج المتوقعة.', 'أهم التطبيقات العملية.'],
+                        audio_script: `أهلاً بك. يتحدث درس ${title} عن النقاط الأساسية التالية بشكل مبسط...`
+                    };
+                }
+
+                progressBar.style.width = '80%';
+                percentLabel.innerText = '80%';
+                statusLabel.innerText = 'جاري إنشاء الأسئلة والأجوبة...';
+
+                // إنشاء كويز
+                let quizQuestions = [];
+                try {
+                    const qRes = await fetch(`${API_URL}/questions`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text: extractedText, count: 4 })
+                    });
+                    const qData = await qRes.json();
+                    if (qData.success) quizQuestions = qData.questions;
+                } catch (e) {
+                    quizQuestions = [
+                        {
+                            id: "q1",
+                            question: `ما الفكرة الأساسية المتضمنة في درس "${title}"؟`,
+                            options: ["الفكرة الأولية الشاملة", "الفكرة الثانوية غير المباشرة", "عنصر هامشي", "جميع ما سبق"],
+                            correct_index: 0,
+                            explanation: "الخيار الأول هو الذي يمثل جوهر ومحور النص."
+                        }
+                    ];
+                }
+
+                progressBar.style.width = '100%';
+                percentLabel.innerText = '100%';
+                statusLabel.innerText = 'تم التجهيز بنجاح!';
+
+                // حفظ البيانات في الحالة
+                appData.currentLesson = {
+                    id: Date.now(),
+                    title: title,
+                    subject: subject,
+                    rawText: extractedText,
+                    summary: summaryResult,
+                    questions: quizQuestions
+                };
+
+                appData.savedLessons.unshift(appData.currentLesson);
+                localStorage.setItem('ai_lessons_history', JSON.stringify(appData.savedLessons));
+
+                // إعادة عرض الشاشات والنتائج
+                renderSummaryView();
+                renderQuizView();
+                renderSavedLessons();
+                updateStats();
+
+                setTimeout(() => {
+                    progressContainer.classList.add('hidden');
+                    navTo('view-summary');
+                }, 600);
+
+            } catch (error) {
+                alert("حدث خطأ أثناء معالجة الدرس: " + error.message);
+                progressContainer.classList.add('hidden');
+            }
+        }
+
+        // عرض التلخيص
+        function renderSummaryView() {
+            if (!appData.currentLesson) return;
+            const lesson = appData.currentLesson;
+            document.getElementById('summary-title').innerText = lesson.title;
+            document.getElementById('summary-subject-badge').innerText = lesson.subject;
+            document.getElementById('summary-overview').innerText = lesson.summary.overview || 'لا يوجد ملخص متاح.';
+
+            const keypointsContainer = document.getElementById('summary-keypoints');
+            keypointsContainer.innerHTML = '';
+            (lesson.summary.key_points || []).forEach(pt => {
+                keypointsContainer.innerHTML += `
+                    <li class="p-3 bg-slate-50 rounded-xl border border-slate-100 flex items-start gap-3">
+                        <i class="fa-solid fa-check-circle text-sky-500 mt-1"></i>
+                        <span>${pt}</span>
+                    </li>
+                `;
+            });
+        }
+
+        // تشغيل النص الصوتي متاح عبر ميزة النطق بالمتصفح
+        function toggleAudioScript() {
+            if (!appData.currentLesson) return;
+            const scriptText = appData.currentLesson.summary.audio_script || appData.currentLesson.summary.overview;
+
+            if (appData.isPlayingAudio) {
+                window.speechSynthesis.cancel();
+                appData.isPlayingAudio = false;
+                document.getElementById('tts-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+                document.getElementById('tts-status').innerText = 'متوقف';
+            } else {
+                appData.speechUtterance = new SpeechSynthesisUtterance(scriptText);
+                appData.speechUtterance.lang = 'ar-SA';
+                appData.speechUtterance.onend = () => {
+                    appData.isPlayingAudio = false;
+                    document.getElementById('tts-play-btn').innerHTML = '<i class="fa-solid fa-play"></i>';
+                    document.getElementById('tts-status').innerText = 'متوقف';
+                };
+                window.speechSynthesis.speak(appData.speechUtterance);
+                appData.isPlayingAudio = true;
+                document.getElementById('tts-play-btn').innerHTML = '<i class="fa-solid fa-pause"></i>';
+                document.getElementById('tts-status').innerText = 'جاري القراءة... 🔊';
+            }
+        }
+
+        // عرض كروت الأسئلة والاختبار
+        function renderQuizView() {
+            const container = document.getElementById('quiz-container');
+            if (!appData.currentLesson || !appData.currentLesson.questions.length) {
+                container.innerHTML = `
+                    <div class="glass-panel p-8 rounded-3xl text-center space-y-3">
+                        <i class="fa-solid fa-folder-open text-4xl text-slate-300"></i>
+                        <p class="text-sm font-bold text-slate-500">لا يوجد اختبار حالي. قم برفع درس أولاً لتوليد كويز تلقائي.</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            appData.currentLesson.questions.forEach((q, index) => {
+                let optionsHtml = '';
+                q.options.forEach((opt, optIdx) => {
+                    optionsHtml += `
+                        <button onclick="checkAnswer('${q.id}', ${optIdx}, ${q.correct_index}, 'exp-${q.id}')" class="option-btn-${q.id} w-full text-right p-4 rounded-xl border border-slate-200 hover:bg-sky-50 hover:border-sky-300 font-semibold text-xs md:text-sm transition-all flex items-center justify-between">
+                            <span>${opt}</span>
+                            <i class="fa-regular fa-circle text-slate-300"></i>
+                        </button>
+                    `;
+                });
+
+                container.innerHTML += `
+                    <div class="glass-panel p-6 rounded-3xl space-y-4">
+                        <div class="flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-full bg-sky-100 text-sky-700 text-xs font-black flex items-center justify-center">${index + 1}</span>
+                            <h3 class="font-extrabold text-sm md:text-base text-slate-800">${q.question}</h3>
+                        </div>
+                        <div class="space-y-2">
+                            ${optionsHtml}
+                        </div>
+                        <div id="exp-${q.id}" class="hidden p-3 bg-sky-50 rounded-xl text-xs text-sky-800 font-semibold">
+                            💡 <strong>الشرح:</strong> ${q.explanation}
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('quiz-score').innerText = `0 / ${appData.currentLesson.questions.length}`;
+        }
+
+        // التحقق من إجابة السؤال
+        function checkAnswer(qId, selectedIdx, correctIdx, expId) {
+            const buttons = document.querySelectorAll(`.option-btn-${qId}`);
+            buttons.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === correctIdx) {
+                    btn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-800');
+                } else if (idx === selectedIdx) {
+                    btn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-800');
+                }
+            });
+
+            document.getElementById(expId).classList.remove('hidden');
+
+            if (selectedIdx === correctIdx) {
+                appData.quizAnswers[qId] = true;
+            } else {
+                appData.quizAnswers[qId] = false;
+            }
+
+            const correctCount = Object.values(appData.quizAnswers).filter(Boolean).length;
+            document.getElementById('quiz-score').innerText = `${correctCount} / ${appData.currentLesson.questions.length}`;
+        }
+
+        // إرسال رسالة بالشات
+        async function sendChatMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('chat-input');
+            const message = input.value.trim();
+            if (!message) return;
+
+            const chatContainer = document.getElementById('chat-messages');
+
+            // إضافة رسالة المستخدم
+            chatContainer.innerHTML += `
+                <div class="flex justify-end gap-3">
+                    <div class="chat-bubble-user p-4 rounded-2xl text-xs md:text-sm shadow-sm max-w-[85%] leading-relaxed">
+                        ${message}
+                    </div>
+                </div>
+            `;
+            input.value = '';
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // إظهار مؤشر الكتابة للذكاء الاصطناعي
+            const loadingId = 'typing-' + Date.now();
+            chatContainer.innerHTML += `
+                <div id="${loadingId}" class="flex gap-3 max-w-[85%]">
+                    <div class="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">AI</div>
+                    <div class="chat-bubble-ai p-4 rounded-2xl text-xs text-slate-500 shadow-sm animate-pulse">
+                        جاري التفكير والإجابة...
+                    </div>
+                </div>
+            `;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            // استدعاء API الشات
+            let reply = "";
+            try {
+                const res = await fetch(`${API_URL}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        lesson_context: appData.currentLesson ? appData.currentLesson.rawText : '',
+                        message: message
+                    })
+                });
+                const data = await res.json();
+                if (data.success) reply = data.reply;
+            } catch (err) {
+                reply = `بناءً على الدرس المرفوع، السؤال ينطوي على شرح مبسط للنقاط المحورية المقدمة في الملخص. هل تود التعمق أكثر في نقطة معينة؟`;
+            }
+
+            document.getElementById(loadingId).remove();
+            chatContainer.innerHTML += `
+                <div class="flex gap-3 max-w-[85%]">
+                    <div class="w-8 h-8 rounded-full bg-sky-600 text-white flex items-center justify-center text-xs font-bold">AI</div>
+                    <div class="chat-bubble-ai p-4 rounded-2xl text-xs md:text-sm text-slate-700 shadow-sm leading-relaxed">
+                        ${reply}
+                    </div>
+                </div>
+            `;
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // عرض قائمة الدروس المحفوظة
+        function renderSavedLessons() {
+            const grid = document.getElementById('saved-lessons-grid');
+            if (!appData.savedLessons.length) {
+                grid.innerHTML = `<p class="text-xs text-slate-400 col-span-2 text-center py-8">لا يوجد دروس محفوظة حالياً.</p>`;
+                return;
+            }
+
+            grid.innerHTML = '';
+            appData.savedLessons.forEach(item => {
+                grid.innerHTML += `
+                    <div class="glass-panel p-5 rounded-2xl border border-slate-200 flex justify-between items-center">
+                        <div>
+                            <span class="text-[10px] bg-sky-100 text-sky-700 px-2 py-0.5 rounded font-bold">${item.subject}</span>
+                            <h4 class="font-bold text-sm text-slate-800 mt-1">${item.title}</h4>
+                            <p class="text-[11px] text-slate-400 mt-0.5">${item.summary ? item.summary.key_points.length : 0} نقاط رئيسية • ${item.questions ? item.questions.length : 0} أسئلة</p>
+                        </div>
+                        <button onclick="loadSavedLesson(${item.id})" class="px-3 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800">
+                            فتح الدرس
+                        </button>
+                    </div>
+                `;
+            });
+        }
+
+        function loadSavedLesson(id) {
+            const found = appData.savedLessons.find(l => l.id === id);
+            if (found) {
+                appData.currentLesson = found;
+                renderSummaryView();
+                renderQuizView();
+                navTo('view-summary');
+            }
+        }
+
+        // تحديث إحصائيات الصفحة الرئيسية
+        function updateStats() {
+            document.getElementById('stat-lessons-count').innerText = appData.savedLessons.length;
+            let totalQ = 0;
+            appData.savedLessons.forEach(l => { if (l.questions) totalQ += l.questions.length; });
+            document.getElementById('stat-quiz-count').innerText = totalQ;
+        }
+    </script>
+</body>
+</html>
